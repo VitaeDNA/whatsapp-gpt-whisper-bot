@@ -13,6 +13,7 @@ from openai import OpenAI
 
 api_key = os.getenv("OPENAI_API_KEY")
 openai_client = OpenAI(api_key=api_key)
+print(f"Chiave API utilizzata: {api_key}")
 
 
 @app.route("/webhook", methods=["GET", "POST"])
