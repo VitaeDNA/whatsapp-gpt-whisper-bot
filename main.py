@@ -2,7 +2,7 @@ from flask import Flask, request
 import requests
 import json
 import traceback
-from config import META_ACCESS_TOKEN, VERIFY_TOKEN, PHONE_NUMBER_ID
+from config import META_ACCESS_TOKEN, VERIFY_TOKEN, PHONE_NUMBER_ID, OPENAI_API_KEY
 from utils import transcribe_audio, ask_gpt
 from openai import OpenAI
 
@@ -11,11 +11,9 @@ app = Flask(__name__)
 import os
 from openai import OpenAI
 
-# Recupera la chiave API dalla variabile d'ambiente
 api_key = os.getenv("OPENAI_API_KEY")
-
-# Inizializza il client OpenAI con la chiave API
 openai_client = OpenAI(api_key=api_key)
+
 
 @app.route("/webhook", methods=["GET", "POST"])
 def webhook():
