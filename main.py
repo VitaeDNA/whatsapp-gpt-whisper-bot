@@ -8,8 +8,14 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
-# Inizializza il client OpenAI
-openai_client = OpenAI(api_key='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')
+import os
+from openai import OpenAI
+
+# Recupera la chiave API dalla variabile d'ambiente
+api_key = os.getenv("OPENAI_API_KEY")
+
+# Inizializza il client OpenAI con la chiave API
+openai_client = OpenAI(api_key=api_key)
 
 @app.route("/webhook", methods=["GET", "POST"])
 def webhook():
