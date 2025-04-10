@@ -4,8 +4,12 @@ import json
 import traceback
 from config import META_ACCESS_TOKEN, VERIFY_TOKEN, PHONE_NUMBER_ID
 from utils import transcribe_audio, ask_gpt
+from openai import OpenAI
 
 app = Flask(__name__)
+
+# Inizializza il client OpenAI
+openai_client = OpenAI(api_key='LA_TUA_API_KEY_OPENAI')
 
 @app.route("/webhook", methods=["GET", "POST"])
 def webhook():
@@ -14,16 +18,16 @@ def webhook():
         challenge = request.args.get("hub.challenge")
         mode = request.args.get("hub.mode")
 
-        app.logger.info(f"GET /webhook called with token={verify_token}, mode={mode}")
+        app.logger.info(f"GET /webhook chiamato con token={verify_token}, mode={mode}")
 
         if verify_token == VERIFY_TOKEN:
             return challenge, 200
         else:
-            return "Token mismatch", 403
+            return "Token non valido", 403
 
     if request.method == "POST":
         data = request.get_json()
-        app.logger.info("POST /webhook - Incoming data:")
+        app.logger.info("POST /webhook - Dati in arrivo:")
         app.logger.info(json.dumps(data, indent=2))
 
         try:
@@ -50,7 +54,12 @@ def webhook():
                         else:
                             text = "Tipo di messaggio non supportato."
 
-                        reply = ask_gpt(text)
+                        # Utilizza il client OpenAI per ottenere la risposta
+                        response = openai_client.chat.completions.create(
+                            model="gpt-3.5-turbo",
+                            messages=[{"role": "user", "content": text}]
+                        )
+                        reply = response.choices[0].message.content.strip()
 
                         send_url = f"https://graph.facebook.com/v17.0/{PHONE_NUMBER_ID}/messages"
                         payload = {
@@ -60,7 +69,7 @@ def webhook():
                             "text": {"body": reply}
                         }
                         response = requests.post(send_url, headers={"Authorization": f"Bearer {META_ACCESS_TOKEN}", "Content-Type": "application/json"}, json=payload)
-                        app.logger.info(f"Response from WhatsApp API: {response.status_code} - {response.text}")
+                        app.logger.info(f"Risposta dall'API di WhatsApp: {response.status_code} - {response.text}")
 
         except Exception as e:
             app.logger.error("Errore nella gestione del messaggio:")
@@ -69,6 +78,4 @@ def webhook():
         return "ok", 200
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
-
     app.run(host='0.0.0.0', port=5000)
