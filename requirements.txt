@@ -1,5 +1,3 @@
-flask
+Flask
 requests
-python-dotenv
 openai
-pydub
