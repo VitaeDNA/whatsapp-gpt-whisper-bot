@@ -9,7 +9,7 @@ from openai import OpenAI
 app = Flask(__name__)
 
 # Inizializza il client OpenAI
-openai_client = OpenAI(api_key='LA_TUA_API_KEY_OPENAI')
+openai_client = OpenAI(api_key='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')
 
 @app.route("/webhook", methods=["GET", "POST"])
 def webhook():
